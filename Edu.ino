@@ -1,4 +1,5 @@
 #include "edu.h" // biblioteca: https://github.com/UerjBotz/Edu/tree/master
+#include <SumoIR.h>
 
 enum estado {
   HORARIO = 0,
@@ -17,16 +18,26 @@ enum simbolo {
 enum estado estado_atual = HORARIO;
 enum simbolo simb;
 
-void setup() { init_edu(9600); }
+SumoIR IR;
+void setup() {
+  init_edu(9600);
+  IR.begin(A0);
+  IR.setLed(LED_BUILTIN, HIGH, 180);
+}
 
 void loop() {
-  simb = sensor();
-  estado_atual = maquina_estado(estado_atual, simb);
-  Serial.print("Simbolo: ");
-  Serial.println(simb);
-  Serial.print("Estado: ");
-  Serial.println(estado_atual);
-  acao(estado_atual);
+  IR.update();
+  if (IR.on()) {
+    simb = sensor();
+    estado_atual = maquina_estado(estado_atual, simb);
+    Serial.print("Simbolo: ");
+    Serial.println(simb);
+    Serial.print("Estado: ");
+    Serial.println(estado_atual);
+    acao(estado_atual);
+  } else {
+    mover(0,0);
+  }
 }
 
 enum estado maquina_estado(enum estado e, enum simbolo s) { // TODO: Print para saber o estado atual do robô.
@@ -79,12 +90,15 @@ void acao(enum estado estado_atual) {
 // Arena 75cm de diâmetro, sensores esquerdo e direito mandam números >800 ao não detectar
 enum simbolo sensor() {
   if (dist_frente() < 20) {
+    //Serial.println("EMPURRANDO");
     return SENSOR_F;
   }
   if (dist_esq() < 20) {
+    //Serial.println("ESQUERDA");
     return SENSOR_E;
   }
   else if (dist_dir() < 20) {
+    //Serial.println("DIREITA");
     return SENSOR_D;
   }
   return NADA;
