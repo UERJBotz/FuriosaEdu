@@ -1,9 +1,9 @@
 #include <Arduino.h>
 
-#define roda_esq_m1 9
-#define roda_esq_m2 10
-#define roda_dir_m1 5
-#define roda_dir_m2 6
+#define roda_esq_m1 5
+#define roda_esq_m2 6
+#define roda_dir_m1 9
+#define roda_dir_m2 10
 #include "motores.h"
 
 #define sensor_esq A3

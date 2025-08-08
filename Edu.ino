@@ -26,6 +26,9 @@ void setup() {
 }
 
 void loop() {
+  // debug_e();
+  // debug_d();
+  // debug_f();
   IR.update();
   if (IR.on()) {
     simb = sensor();
@@ -40,7 +43,7 @@ void loop() {
   }
 }
 
-enum estado maquina_estado(enum estado e, enum simbolo s) { // TODO: Print para saber o estado atual do robô.
+enum estado maquina_estado(enum estado e, enum simbolo s) {
   switch(e) {
     case HORARIO: 
       switch(s) {
@@ -80,26 +83,41 @@ enum estado maquina_estado(enum estado e, enum simbolo s) { // TODO: Print para 
 
 void acao(enum estado estado_atual) {
   switch(estado_atual) {
-    case HORARIO:      mover(100,-100);  break;
-    case ANTI_HORARIO: mover(-100,100);  break;
-    case ATAQUE_D:     mover(200,200); break;
-    case ATAQUE_E:     mover(200,200); break;
+    case HORARIO:      mover(600,-600);  break;
+    case ANTI_HORARIO: mover(-600,600);  break;
+    case ATAQUE_D:     mover(1023,1023);   break;
+    case ATAQUE_E:     mover(1023,1023);   break;
   }
 }
 
 // Arena 75cm de diâmetro, sensores esquerdo e direito mandam números >800 ao não detectar
 enum simbolo sensor() {
-  if (dist_frente() < 20) {
-    //Serial.println("EMPURRANDO");
-    return SENSOR_F;
-  }
-  if (dist_esq() < 20) {
-    //Serial.println("ESQUERDA");
+  if (dist_esq() < 15) {
+    // Serial.println("ESQUERDA");
     return SENSOR_E;
   }
-  else if (dist_dir() < 20) {
-    //Serial.println("DIREITA");
+  else if (dist_dir() < 15) {
+    // Serial.println("DIREITA");
     return SENSOR_D;
   }
+  if (dist_frente() < 20) {
+    // Serial.println("EMPURRANDO");
+    return SENSOR_F;
+  }
   return NADA;
+}
+
+void debug_e() {
+  Serial.println(dist_esq());
+  Serial.print("Esquerda: ");
+}
+
+void debug_d() {
+  Serial.println(dist_dir());
+  Serial.print("Direita: ");
+}
+
+void debug_f() {
+  Serial.println(dist_frente());
+  Serial.print("Frente: ");
 }
