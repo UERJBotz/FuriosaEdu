@@ -83,10 +83,10 @@ enum estado maquina_estado(enum estado e, enum simbolo s) {
 
 void acao(enum estado estado_atual) {
   switch(estado_atual) {
-    case HORARIO:      mover(600,-600);  break;
-    case ANTI_HORARIO: mover(-600,600);  break;
-    case ATAQUE_D:     mover(1023,1023);   break;
-    case ATAQUE_E:     mover(1023,1023);   break;
+    case HORARIO:      mover(150,-150);  break;
+    case ANTI_HORARIO: mover(-150,150);  break;
+    case ATAQUE_D:     mover(255,255);   break;
+    case ATAQUE_E:     mover(255,255);   break;
   }
 }
 
