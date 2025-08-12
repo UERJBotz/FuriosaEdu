@@ -1,6 +1,8 @@
 #include "edu.h" // biblioteca: https://github.com/UerjBotz/Edu/tree/master
 #include <SumoIR.h>
 
+#define pino_ir 15
+
 enum estado {
   HORARIO = 0,
   ANTI_HORARIO,
@@ -21,12 +23,18 @@ enum simbolo simb;
 SumoIR IR;
 void setup() {
   init_edu(9600);
-  IR.begin(A0);
-  IR.setLed(LED_BUILTIN, HIGH, 180);
+  IR.begin(pino_ir);
+  IR.setLed(2, HIGH, 180);
 }
 
 void loop() {
   IR.update();
+  if (IR.prepare()) {
+    mover(0,0);
+  }
+  else if (IR.start()) {
+    Serial.println("Começo ativado");
+  }
   if (IR.on()) {
     simb = sensor();
     estado_atual = maquina_estado(estado_atual, simb);
@@ -35,12 +43,12 @@ void loop() {
     Serial.print("Estado: ");
     Serial.println(estado_atual);
     acao(estado_atual);
-  } else {
+  } else if (IR.stop()) {
     mover(0,0);
   }
 }
 
-enum estado maquina_estado(enum estado e, enum simbolo s) { // TODO: Print para saber o estado atual do robô.
+enum estado maquina_estado(enum estado e, enum simbolo s) {
   switch(e) {
     case HORARIO: 
       switch(s) {
@@ -82,24 +90,24 @@ void acao(enum estado estado_atual) {
   switch(estado_atual) {
     case HORARIO:      mover(600,-600);  break;
     case ANTI_HORARIO: mover(-600,600);  break;
-    case ATAQUE_D:     mover(1023,1023); break;
-    case ATAQUE_E:     mover(1023,1023); break;
+    case ATAQUE_D:     mover(1023,1023);   break;
+    case ATAQUE_E:     mover(1023,1023);   break;
   }
 }
 
 // Arena 75cm de diâmetro, sensores esquerdo e direito mandam números >800 ao não detectar
 enum simbolo sensor() {
-  if (dist_frente() < 20) {
-    //Serial.println("EMPURRANDO");
-    return SENSOR_F;
-  }
-  if (dist_esq() < 20) {
-    //Serial.println("ESQUERDA");
+  if (dist_esq()) {
+    // Serial.println("ESQUERDA");
     return SENSOR_E;
   }
-  else if (dist_dir() < 20) {
-    //Serial.println("DIREITA");
+  else if (dist_dir()) {
+    // Serial.println("DIREITA");
     return SENSOR_D;
+  }
+  if (dist_frente_esq() || dist_frente_dir()) {
+    // Serial.println("EMPURRANDO");
+    return SENSOR_F;
   }
   return NADA;
 }
