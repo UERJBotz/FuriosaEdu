@@ -1,6 +1,8 @@
 #include "edu.h" // biblioteca: https://github.com/UerjBotz/Edu/tree/master
 #include <SumoIR.h>
 
+#define pino_ir 15
+
 enum estado {
   HORARIO = 0,
   ANTI_HORARIO,
@@ -21,8 +23,8 @@ enum simbolo simb;
 SumoIR IR;
 void setup() {
   init_edu(9600);
-  IR.begin(A0);
-  IR.setLed(LED_BUILTIN, HIGH, 180);
+  IR.begin(pino_ir);
+  IR.setLed(2, HIGH, 180);
 }
 
 void loop() {
@@ -30,6 +32,12 @@ void loop() {
   // debug_d();
   // debug_f();
   IR.update();
+  if (IR.prepare()) {
+    mover(0,0);
+  }
+  else if (IR.start()) {
+    Serial.println("Começo ativado");
+  }
   if (IR.on()) {
     simb = sensor();
     estado_atual = maquina_estado(estado_atual, simb);
@@ -38,7 +46,7 @@ void loop() {
     Serial.print("Estado: ");
     Serial.println(estado_atual);
     acao(estado_atual);
-  } else {
+  } else if (IR.stop()) {
     mover(0,0);
   }
 }
@@ -83,15 +91,23 @@ enum estado maquina_estado(enum estado e, enum simbolo s) {
 
 void acao(enum estado estado_atual) {
   switch(estado_atual) {
+<<<<<<< HEAD
     case HORARIO:      mover(150,-150);  break;
     case ANTI_HORARIO: mover(-150,150);  break;
     case ATAQUE_D:     mover(255,255);   break;
     case ATAQUE_E:     mover(255,255);   break;
+=======
+    case HORARIO:      mover(600,-600);  break;
+    case ANTI_HORARIO: mover(-600,600);  break;
+    case ATAQUE_D:     mover(1023,1023);   break;
+    case ATAQUE_E:     mover(1023,1023);   break;
+>>>>>>> 680bf74 (Arduino para ESP32 --> Sensores booleanos, dist_frente separado em esq e dir, adições no IR, definição de pinos e MAX 1023)
   }
 }
 
 // Arena 75cm de diâmetro, sensores esquerdo e direito mandam números >800 ao não detectar
 enum simbolo sensor() {
+<<<<<<< HEAD
   if (dist_esq() < 15) {
     // Serial.println("ESQUERDA");
     return SENSOR_E;
@@ -101,10 +117,22 @@ enum simbolo sensor() {
     return SENSOR_D;
   }
   if (dist_frente() < 20) {
+=======
+  if (dist_esq()) {
+    // Serial.println("ESQUERDA");
+    return SENSOR_E;
+  }
+  else if (dist_dir()) {
+    // Serial.println("DIREITA");
+    return SENSOR_D;
+  }
+  if (dist_frente_esq() || dist_frente_dir()) {
+>>>>>>> 680bf74 (Arduino para ESP32 --> Sensores booleanos, dist_frente separado em esq e dir, adições no IR, definição de pinos e MAX 1023)
     // Serial.println("EMPURRANDO");
     return SENSOR_F;
   }
   return NADA;
+<<<<<<< HEAD
 }
 
 void debug_e() {
@@ -120,4 +148,6 @@ void debug_d() {
 void debug_f() {
   Serial.println(dist_frente());
   Serial.print("Frente: ");
+=======
+>>>>>>> 680bf74 (Arduino para ESP32 --> Sensores booleanos, dist_frente separado em esq e dir, adições no IR, definição de pinos e MAX 1023)
 }
