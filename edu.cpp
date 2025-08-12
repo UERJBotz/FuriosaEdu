@@ -1,9 +1,16 @@
 #include <Arduino.h>
 
+<<<<<<< HEAD
 #define roda_esq_m1 19
 #define roda_esq_m2 18
 #define roda_dir_m1 23
 #define roda_dir_m2 4
+=======
+#define roda_esq_m1 5
+#define roda_esq_m2 6
+#define roda_dir_m1 9
+#define roda_dir_m2 10
+>>>>>>> refs/remotes/origin/master
 #include "motores.h"
 
 #define sensor_esq 32
