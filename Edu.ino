@@ -1,7 +1,6 @@
+// Arena 75cm de diâmetro
 #include "edu.h" // biblioteca: https://github.com/UerjBotz/Edu/tree/master
 #include <SumoIR.h>
-
-#define pino_ir 15
 
 enum estado {
   HORARIO = 0,
@@ -17,14 +16,15 @@ enum simbolo {
   NADA,
 };
 
-enum estado estado_atual = HORARIO;
+enum estado  estado_atual = HORARIO;
 enum simbolo simb;
 
+#define pino_ir 15
+#define led     2
 SumoIR IR;
+
 void setup() {
   init_edu(9600);
-  IR.begin(pino_ir);
-  IR.setLed(2, HIGH, 180);
 }
 
 void loop() {
@@ -33,7 +33,7 @@ void loop() {
     mover(0,0);
   }
   else if (IR.start()) {
-    Serial.println("Começo ativado");
+    Serial.println("Começo");
   }
   if (IR.on()) {
     simb = sensor();
@@ -88,14 +88,13 @@ enum estado maquina_estado(enum estado e, enum simbolo s) {
 
 void acao(enum estado estado_atual) {
   switch(estado_atual) {
-    case HORARIO:      mover(600,-600);  break;
-    case ANTI_HORARIO: mover(-600,600);  break;
+    case HORARIO:      mover(600,-600);    break;
+    case ANTI_HORARIO: mover(-600,600);    break;
     case ATAQUE_D:     mover(1023,1023);   break;
     case ATAQUE_E:     mover(1023,1023);   break;
   }
 }
 
-// Arena 75cm de diâmetro, sensores esquerdo e direito mandam números >800 ao não detectar
 enum simbolo sensor() {
   if (dist_esq()) {
     // Serial.println("ESQUERDA");
