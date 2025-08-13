@@ -1,4 +1,3 @@
-// Arena 75cm de diâmetro
 #include "edu.h" // biblioteca: https://github.com/UerjBotz/Edu/tree/master
 #include <SumoIR.h>
 
@@ -10,7 +9,8 @@ enum estado {
 };
 
 enum simbolo {
-  SENSOR_F = 0,
+  SENSOR_FE = 0,
+  SENSOR_FD,
   SENSOR_E,
   SENSOR_D,
   NADA,
@@ -25,6 +25,8 @@ SumoIR IR;
 
 void setup() {
   init_edu(9600);
+  IR.begin(pino_ir);
+  IR.setLed(led, HIGH, 180);
 }
 
 void loop() {
@@ -52,7 +54,8 @@ enum estado maquina_estado(enum estado e, enum simbolo s) {
   switch(e) {
     case HORARIO: 
       switch(s) {
-        case SENSOR_F: return ATAQUE_D;
+        case SENSOR_FE: return ATAQUE_E;
+        case SENSOR_FD: return ATAQUE_D;
         case SENSOR_E: return ANTI_HORARIO;
         case SENSOR_D: return HORARIO;
         case NADA:     return HORARIO;
@@ -60,7 +63,8 @@ enum estado maquina_estado(enum estado e, enum simbolo s) {
       break;
     case ANTI_HORARIO: 
       switch(s) {
-        case SENSOR_F: return ATAQUE_E;
+        case SENSOR_FE: return ATAQUE_E;
+        case SENSOR_FD: return ATAQUE_D;
         case SENSOR_D: return HORARIO;
         case SENSOR_E: return ANTI_HORARIO;
         case NADA:     return ANTI_HORARIO;
@@ -68,7 +72,8 @@ enum estado maquina_estado(enum estado e, enum simbolo s) {
       break;
     case ATAQUE_D:
       switch(s) {
-        case SENSOR_F: return ATAQUE_D;
+        case SENSOR_FE: return ATAQUE_E;
+        case SENSOR_FD: return ATAQUE_D;
         case SENSOR_E: return ANTI_HORARIO;
         case SENSOR_D: return HORARIO;
         case NADA:     return HORARIO;
@@ -76,7 +81,8 @@ enum estado maquina_estado(enum estado e, enum simbolo s) {
       break;
     case ATAQUE_E:
       switch(s) {
-        case SENSOR_F: return ATAQUE_E;
+        case SENSOR_FE: return ATAQUE_E;
+        case SENSOR_FD: return ATAQUE_D;
         case SENSOR_D: return HORARIO;
         case SENSOR_E: return ANTI_HORARIO;
         case NADA:     return ANTI_HORARIO;
@@ -88,10 +94,10 @@ enum estado maquina_estado(enum estado e, enum simbolo s) {
 
 void acao(enum estado estado_atual) {
   switch(estado_atual) {
-    case HORARIO:      mover(600,-600);    break;
-    case ANTI_HORARIO: mover(-600,600);    break;
-    case ATAQUE_D:     mover(1023,1023);   break;
-    case ATAQUE_E:     mover(1023,1023);   break;
+    case HORARIO:      mover(1023,-1023);    break;
+    case ANTI_HORARIO: mover(-1023,1023);    break;
+    case ATAQUE_D:     mover(1023,1010);   break;
+    case ATAQUE_E:     mover(1010,1023);   break;
   }
 }
 
@@ -100,13 +106,17 @@ enum simbolo sensor() {
     // Serial.println("ESQUERDA");
     return SENSOR_E;
   }
-  else if (dist_dir()) {
+  if (dist_dir()) {
     // Serial.println("DIREITA");
     return SENSOR_D;
   }
-  if (dist_frente_esq() || dist_frente_dir()) {
-    // Serial.println("EMPURRANDO");
-    return SENSOR_F;
+  if (dist_frente_esq()) {
+    // Serial.println("ATACANDO ESQUERDA");
+    return SENSOR_FE;
+  }
+  if (dist_frente_dir()) {
+    // Serial.println("ATACANDO DIREITA")
+    return SENSOR_FD;
   }
   return NADA;
 }
