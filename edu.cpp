@@ -6,8 +6,8 @@
 #define roda_dir_m2 4
 #include "motores.h"
 
-#define sensor_esq 32
-#define sensor_dir 26
+#define sensor_esq 33
+#define sensor_dir 32
 #define sensor_frente_esq  27
 #define sensor_frente_dir  26
 #include "sensores.h"

@@ -1,6 +1,9 @@
 #include "edu.h" // biblioteca: https://github.com/UerjBotz/Edu/tree/master
 #include <SumoIR.h>
 
+#define pino_ir 15
+#define led     2
+
 enum estado {
   HORARIO = 0,
   ANTI_HORARIO,
@@ -19,8 +22,6 @@ enum simbolo {
 enum estado  estado_atual = HORARIO;
 enum simbolo simb;
 
-#define pino_ir 15
-#define led     2
 SumoIR IR;
 
 void setup() {
@@ -31,21 +32,28 @@ void setup() {
 
 void loop() {
   IR.update();
+
   if (IR.prepare()) {
     mover(0,0);
   }
   else if (IR.start()) {
     Serial.println("Começo");
   }
-  if (IR.on()) {
+  else if (IR.on()) {
     simb = sensor();
     estado_atual = maquina_estado(estado_atual, simb);
     Serial.print("Simbolo: ");
     Serial.println(simb);
     Serial.print("Estado: ");
     Serial.println(estado_atual);
-    acao(estado_atual);
-  } else if (IR.stop()) {
+
+    #ifdef MADMAX
+      mover(1023, 1023);
+    #else
+      acao(estado_atual);
+    #endif
+  } 
+  else if (IR.stop()) {
     mover(0,0);
   }
 }
