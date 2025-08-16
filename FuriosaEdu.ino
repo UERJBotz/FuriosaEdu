@@ -1,4 +1,6 @@
-#include "edu.h" // biblioteca: https://github.com/UerjBotz/Edu/tree/master
+// #define MADMAX # Ativa MADMAX
+
+#include "edu.h"
 #include <SumoIR.h>
 
 #define pino_ir 15
@@ -42,10 +44,6 @@ void loop() {
   else if (IR.on()) {
     simb = sensor();
     estado_atual = maquina_estado(estado_atual, simb);
-    Serial.print("Simbolo: ");
-    Serial.println(simb);
-    Serial.print("Estado: ");
-    Serial.println(estado_atual);
 
     #ifdef MADMAX
       mover(1023, 1023);
@@ -64,36 +62,36 @@ enum estado maquina_estado(enum estado e, enum simbolo s) {
       switch(s) {
         case SENSOR_FE: return ATAQUE_E;
         case SENSOR_FD: return ATAQUE_D;
-        case SENSOR_E: return ANTI_HORARIO;
-        case SENSOR_D: return HORARIO;
-        case NADA:     return HORARIO;
+        case SENSOR_E:  return ANTI_HORARIO;
+        case SENSOR_D:  return HORARIO;
+        case NADA:      return HORARIO;
       }
       break;
     case ANTI_HORARIO: 
       switch(s) {
         case SENSOR_FE: return ATAQUE_E;
         case SENSOR_FD: return ATAQUE_D;
-        case SENSOR_D: return HORARIO;
-        case SENSOR_E: return ANTI_HORARIO;
-        case NADA:     return ANTI_HORARIO;
+        case SENSOR_D:  return HORARIO;
+        case SENSOR_E:  return ANTI_HORARIO;
+        case NADA:      return ANTI_HORARIO;
       }
       break;
     case ATAQUE_D:
       switch(s) {
         case SENSOR_FE: return ATAQUE_E;
         case SENSOR_FD: return ATAQUE_D;
-        case SENSOR_E: return ANTI_HORARIO;
-        case SENSOR_D: return HORARIO;
-        case NADA:     return HORARIO;
+        case SENSOR_E:  return ANTI_HORARIO;
+        case SENSOR_D:  return HORARIO;
+        case NADA:      return HORARIO;
       }
       break;
     case ATAQUE_E:
       switch(s) {
         case SENSOR_FE: return ATAQUE_E;
         case SENSOR_FD: return ATAQUE_D;
-        case SENSOR_D: return HORARIO;
-        case SENSOR_E: return ANTI_HORARIO;
-        case NADA:     return ANTI_HORARIO;
+        case SENSOR_D:  return HORARIO;
+        case SENSOR_E:  return ANTI_HORARIO;
+        case NADA:      return ANTI_HORARIO;
       }
       break;
   }
@@ -102,8 +100,8 @@ enum estado maquina_estado(enum estado e, enum simbolo s) {
 
 void acao(enum estado estado_atual) {
   switch(estado_atual) {
-    case HORARIO:      mover(1023,-1023);    break;
-    case ANTI_HORARIO: mover(-1023,1023);    break;
+    case HORARIO:      mover(1023,-1023);  break; // ALTERAR E TESTAR!!
+    case ANTI_HORARIO: mover(-1023,1023);  break; // ALTERAR E TESTAR!!
     case ATAQUE_D:     mover(1023,1010);   break;
     case ATAQUE_E:     mover(1010,1023);   break;
   }
@@ -111,19 +109,15 @@ void acao(enum estado estado_atual) {
 
 enum simbolo sensor() {
   if (dist_esq()) {
-    // Serial.println("ESQUERDA");
     return SENSOR_E;
   }
   if (dist_dir()) {
-    // Serial.println("DIREITA");
     return SENSOR_D;
   }
   if (dist_frente_esq()) {
-    // Serial.println("ATACANDO ESQUERDA");
     return SENSOR_FE;
   }
   if (dist_frente_dir()) {
-    // Serial.println("ATACANDO DIREITA")
     return SENSOR_FD;
   }
   return NADA;
