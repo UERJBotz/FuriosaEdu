@@ -1,7 +1,6 @@
-// #define MADMAX # Ativa MADMAX
-
 #include "edu.h"
 #include <SumoIR.h>
+#include <BluetoothSerial.h>
 
 #define pino_ir 15
 #define led     2
@@ -25,38 +24,58 @@ enum estado  estado_atual = HORARIO;
 enum simbolo simb;
 
 SumoIR IR;
+BluetoothSerial SerialBT;
+
+enum estrategia {
+  GIRAR_ATE = 4,
+  MAD_MAX = 9,
+} estrategia = GIRAR_ATE;
 
 void setup() {
   init_edu(9600);
   IR.begin(pino_ir);
   IR.setLed(led, HIGH, 180);
+  SerialBT.begin("Furiosa");
 }
 
 void loop() {
   IR.update();
 
+  if (IR.available()) { /* quando o sensor tiver ativado */
+    // salva o número lido pelo sensor, estando de 4 a 9
+    int cmd = IR.read();
+    if (cmd >= 4 && cmd <= 9) estrategia = (enum estrategia)cmd;
+  }
+
   if (IR.prepare()) {
     mover(0,0);
+    SerialBT.println("Prepare");
   }
   else if (IR.start()) {
-    Serial.println("Começo");
+    SerialBT.println("Start");
   }
   else if (IR.on()) {
-    simb = sensor();
-    estado_atual = maquina_estado(estado_atual, simb);
+    SerialBT.println("On");
 
-    #ifdef MADMAX
-      mover(1023, 1023);
-    #else
-      acao(estado_atual);
-    #endif
+    simb = sensor();
+
+    switch(estrategia) {
+      default:
+      case GIRAR_ATE:
+        estado_atual = maquina_estado_girar_ate(estado_atual, simb);
+        acao_andar_ate(estado_atual);
+      break;
+
+      case MAD_MAX: mover(1023, 1023); break;
+    }
   } 
   else if (IR.stop()) {
+    SerialBT.println("Stop");
     mover(0,0);
   }
 }
 
-enum estado maquina_estado(enum estado e, enum simbolo s) {
+enum estado maquina_estado_girar_ate(enum estado e, enum simbolo s) {
   switch(e) {
     case HORARIO: 
       switch(s) {
@@ -98,7 +117,7 @@ enum estado maquina_estado(enum estado e, enum simbolo s) {
   return HORARIO;
 }
 
-void acao(enum estado estado_atual) {
+void acao_andar_ate(enum estado estado_atual) {
   switch(estado_atual) {
     case HORARIO:      mover(1023,-1023);  break; // ALTERAR E TESTAR!!
     case ANTI_HORARIO: mover(-1023,1023);  break; // ALTERAR E TESTAR!!
