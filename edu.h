@@ -1,6 +1,6 @@
 #include <inttypes.h>
 
-void init_edu(unsigned int baud = 9600);
+void init_edu(unsigned int baud);
 
 bool dist_frente_esq(void);
 bool dist_frente_dir(void);
