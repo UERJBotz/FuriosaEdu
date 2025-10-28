@@ -2,13 +2,13 @@
 #include <SumoIR.h>
 #include <BluetoothSerial.h>
 
-SumoIR IR;
-BluetoothSerial SerialBT;
-
 #define pino_ir 15
 #define led     2
 
-enum estado {
+SumoIR IR;
+BluetoothSerial SerialBT;
+
+enum girar_ate {
   HORARIO = 0,
   ANTI_HORARIO,
   ATAQUE_E,
@@ -25,13 +25,11 @@ enum simbolo {
   NADA,
 };
 
-enum estado  estado_atual = HORARIO;
-enum simbolo simb;
-
 enum estrategia {
   GIRAR_ATE = 4,
   MAD_MAX = 9,
 } estrategia = GIRAR_ATE;
+
 
 void setup() {
   init_edu(9600);
@@ -43,47 +41,48 @@ void setup() {
 void loop() {
   IR.update();
 
-  if (IR.available()) { /* quando o sensor estiver ativado */
+  if (IR.available()) {/* quando o sensor estiver ativado */
     // salva o número lido pelo sensor, estando de 4 a 9
     int cmd = IR.read();
-    if (cmd >= 4 && cmd <= 9) estrategia = (enum estrategia)cmd;
+    if (cmd >= 4 && cmd <= 9) {
+        estrategia = (enum estrategia)cmd;
+    }
   }
 
   if (IR.prepare()) {
     mover(0,0);
     SerialBT.println("Prepare");
-  }
-  else if (IR.start()) {
+  } else if (IR.start()) {
     SerialBT.println("Start");
-  }
-  else if (IR.on()) {
+  } else if (IR.on()) {
     SerialBT.println("On");
 
-    simb = sensor();
+    enum simbolo simb = sensor();
 
-    switch(estrategia) {
+    switch (estrategia) {
       default:
+      case GIRAR_ATE: {
+        static enum girar_ate estado = HORARIO;
 
-      case GIRAR_ATE:
-        estado_atual = maquina_estado_girar_ate(estado_atual, simb);
-        acao_andar_ate(estado_atual);
-      break;
+        estado = maquina_girar_ate(estado, simb);
+        acao_girar_ate(estado);
+      } break;
 
-      case MAD_MAX: 
+      case MAD_MAX: {
         mover(1023, 1023);
-      break;
+      } break;
 
     }
-  } 
-  else if (IR.stop()) {
+  } else if (IR.stop()) {
     SerialBT.println("Stop");
     mover(0,0);
   }
 }
 
-enum estado maquina_estado_girar_ate(enum estado e, enum simbolo s) {
+enum girar_ate maquina_girar_ate(enum girar_ate e,
+                                 enum simbolo s) {
   switch(e) {
-    case HORARIO: 
+    case HORARIO:
       switch(s) {
         case SENSOR_FE:   return ATAQUE_E;
         case SENSOR_FD:   return ATAQUE_D;
@@ -91,8 +90,7 @@ enum estado maquina_estado_girar_ate(enum estado e, enum simbolo s) {
         case SENSOR_E:    return ANTI_HORARIO;
         case SENSOR_D:    return HORARIO;
         case NADA:        return HORARIO;
-      }
-      break;
+      } break;
     case ANTI_HORARIO: 
       switch(s) {
         case SENSOR_FE:   return ATAQUE_E;
@@ -101,8 +99,7 @@ enum estado maquina_estado_girar_ate(enum estado e, enum simbolo s) {
         case SENSOR_D:    return HORARIO;
         case SENSOR_E:    return ANTI_HORARIO;
         case NADA:        return ANTI_HORARIO;
-      }
-      break;
+      } break;
     case ATAQUE_F:
       switch(s) {
         case SENSOR_FE:   return ATAQUE_E;
@@ -111,7 +108,7 @@ enum estado maquina_estado_girar_ate(enum estado e, enum simbolo s) {
         case SENSOR_E:    return ANTI_HORARIO;
         case SENSOR_D:    return HORARIO;
         case NADA:        return ATAQUE_F;
-      }
+      } break;
     case ATAQUE_D:
       switch(s) {
         case SENSOR_FE:   return ATAQUE_E;
@@ -120,8 +117,7 @@ enum estado maquina_estado_girar_ate(enum estado e, enum simbolo s) {
         case SENSOR_E:    return ANTI_HORARIO;
         case SENSOR_D:    return HORARIO;
         case NADA:        return HORARIO;
-      }
-      break;
+      } break;
     case ATAQUE_E:
       switch(s) {
         case SENSOR_FE:   return ATAQUE_E;
@@ -130,37 +126,39 @@ enum estado maquina_estado_girar_ate(enum estado e, enum simbolo s) {
         case SENSOR_D:    return HORARIO;
         case SENSOR_E:    return ANTI_HORARIO;
         case NADA:        return ANTI_HORARIO;
-      }
-      break;
+      } break;
   }
-  return HORARIO;
+
+  return e;
 }
 
-void acao_andar_ate(enum estado estado_atual) {
-  switch(estado_atual) {
-    case HORARIO:      mover(700,-700);    Serial.println("Girando horario");      break;
-    case ANTI_HORARIO: mover(-700,700);    Serial.println("Girando anti-horario"); break;
-    case ATAQUE_F:     mover(1023,1023);   Serial.println("Atacando frente");      break;
-    case ATAQUE_D:     mover(1023,1010);   Serial.println("Atacando direita");     break;
-    case ATAQUE_E:     mover(1010,1023);   Serial.println("Atacando esquerda");    break;
+void acao_girar_ate(enum girar_ate estado) {
+  switch(estado) {
+    case HORARIO: {
+      mover(700,-700); Serial.println("Girando horario");
+    } break;
+    case ANTI_HORARIO: {
+      mover(-700,700); Serial.println("Girando anti-horario");
+    } break;
+    case ATAQUE_F: {
+      mover(1023,1023); Serial.println("Atacando frente");
+    } break;
+    case ATAQUE_D: {
+      mover(1023,1010); Serial.println("Atacando direita");
+    } break;
+    case ATAQUE_E: {
+      mover(1010,1023); Serial.println("Atacando esquerda");
+    } break;
   }
 }
 
 enum simbolo sensor() {
-  if (dist_esq()) {
-    return SENSOR_E;
-  }
-  else if (dist_dir()) {
-    return SENSOR_D;
-  }
-  else if (dist_frente_esq()) {
-    return SENSOR_FE;
-  }
-  else if (dist_frente_dir()) {
-    return SENSOR_FD;
-  }
-  else if (dist_frente_esq() && dist_frente_dir()) {
-    return SENSOR_FEFD;
-  }
-  else return NADA;
+  if (dist_esq())        return SENSOR_E; else
+  if (dist_dir())        return SENSOR_D; else
+  if (dist_frente_esq()) return SENSOR_FE; else
+  if (dist_frente_dir()) return SENSOR_FD; else
+  if (dist_frente_esq() &&
+      dist_frente_dir()) return SENSOR_FEFD;
+
+  return NADA;
 }
