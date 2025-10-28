@@ -1,4 +1,5 @@
 #include "edu.h"
+#include "LEDFX.h"
 #include <SumoIR.h>
 #include <BluetoothSerial.h>
 
@@ -7,6 +8,7 @@
 
 SumoIR IR;
 BluetoothSerial SerialBT;
+
 
 enum girar_ate {
   HORARIO = 0,
@@ -41,6 +43,9 @@ void setup() {
 void loop() {
   IR.update();
 
+  struct leitura sensores = leitura_sensores();
+  mostra_sensores_no_led(sensores);
+
   if (IR.available()) {/* quando o sensor estiver ativado */
     // salva o número lido pelo sensor, estando de 4 a 9
     int cmd = IR.read();
@@ -57,8 +62,7 @@ void loop() {
   } else if (IR.on()) {
     SerialBT.println("On");
 
-    enum simbolo simb = sensor();
-
+    enum simbolo simb = prox_simbolo(sensores);
     switch (estrategia) {
       default:
       case GIRAR_ATE: {
@@ -152,13 +156,13 @@ void acao_girar_ate(enum girar_ate estado) {
   }
 }
 
-enum simbolo sensor() {
-  if (dist_esq())        return SENSOR_E; else
-  if (dist_dir())        return SENSOR_D; else
-  if (dist_frente_esq()) return SENSOR_FE; else
-  if (dist_frente_dir()) return SENSOR_FD; else
-  if (dist_frente_esq() &&
-      dist_frente_dir()) return SENSOR_FEFD;
+enum simbolo prox_simbolo(struct leitura sensores) {
+  if (sensores.esq)        return SENSOR_E;  else
+  if (sensores.dir)        return SENSOR_D;  else
+  if (sensores.frente_esq) return SENSOR_FE; else
+  if (sensores.frente_dir) return SENSOR_FD; else
+  if (sensores.frente_esq &&
+      sensores.frente_dir) return SENSOR_FEFD;
 
   return NADA;
 }
