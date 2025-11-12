@@ -1,13 +1,18 @@
 #include "edu.h"
 #include "LEDFX.h"
 #include <SumoIR.h>
-#include <BluetoothSerial.h>
 
 #define pino_ir 15
 #define led     2
 
-SumoIR IR;
+#ifdef BLUETOOTH
+#include <BluetoothSerial.h>
+
 BluetoothSerial SerialBT;
+#define Serial SerialBT
+#endif
+
+SumoIR IR;
 
 
 enum girar_ate {
@@ -37,7 +42,8 @@ void setup() {
   init_edu(9600);
   IR.begin(pino_ir);
   IR.setLed(led, HIGH, 180);
-  SerialBT.begin("Furiosa está ligada");
+
+  Serial.println("Furiosa está ligada");
 }
 
 void loop() {
@@ -56,11 +62,11 @@ void loop() {
 
   if (IR.prepare()) {
     mover(0,0);
-    SerialBT.println("Prepare");
+    Serial.println("Prepare");
   } else if (IR.start()) {
-    SerialBT.println("Start");
+    Serial.println("Start");
   } else if (IR.on()) {
-    SerialBT.println("On");
+    Serial.println("On");
 
     enum simbolo simb = prox_simbolo(sensores);
     switch (estrategia) {
@@ -75,10 +81,9 @@ void loop() {
       case MAD_MAX: {
         mover(1023, 1023);
       } break;
-
     }
   } else if (IR.stop()) {
-    SerialBT.println("Stop");
+    Serial.println("Stop");
     mover(0,0);
   }
 }
