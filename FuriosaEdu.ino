@@ -150,13 +150,13 @@ void acao_girar_ate(enum girar_ate estado) {
       mover(-700,700); Serial.println("Girando anti-horario");
     } break;
     case ATAQUE_F: {
-      mover(1023,1023); Serial.println("Atacando frente");
+      mover(900,900); Serial.println("Atacando frente");
     } break;
     case ATAQUE_D: {
-      mover(1023,1010); Serial.println("Atacando direita");
+      mover(800,700); Serial.println("Atacando direita");
     } break;
     case ATAQUE_E: {
-      mover(1010,1023); Serial.println("Atacando esquerda");
+      mover(700,800); Serial.println("Atacando esquerda");
     } break;
   }
 }
