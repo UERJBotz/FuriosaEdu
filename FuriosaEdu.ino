@@ -51,6 +51,7 @@ void loop() {
 
   struct leitura sensores = leitura_sensores();
   mostra_sensores_no_led(sensores);
+  pixels.show();
 
   if (IR.available()) {/* quando o sensor estiver ativado */
     // salva o número lido pelo sensor, estando de 4 a 9
@@ -72,13 +73,17 @@ void loop() {
     switch (estrategia) {
       default:
       case GIRAR_ATE: {
-        static enum girar_ate estado = HORARIO;
+        static enum girar_ate estado = ANTI_HORARIO;
+        pixels.setPixelColor(7, 0, 150, 0);
+        pixels.show();
 
         estado = maquina_girar_ate(estado, simb);
         acao_girar_ate(estado);
       } break;
 
       case MAD_MAX: {
+        pixels.setPixelColor(7, 150, 0, 0);
+        pixels.show();
         mover(1023, 1023);
       } break;
     }
@@ -104,7 +109,7 @@ enum girar_ate maquina_girar_ate(enum girar_ate e,
       switch(s) {
         case SENSOR_FE:   return ATAQUE_E;
         case SENSOR_FD:   return ATAQUE_D;
-        case SENSOR_FEFD: return ATAQUE_F;
+        case SENSOR_FEFD: return ATAQUE_F; //
         case SENSOR_D:    return HORARIO;
         case SENSOR_E:    return ANTI_HORARIO;
         case NADA:        return ANTI_HORARIO;
@@ -116,7 +121,7 @@ enum girar_ate maquina_girar_ate(enum girar_ate e,
         case SENSOR_FEFD: return ATAQUE_F;
         case SENSOR_E:    return ANTI_HORARIO;
         case SENSOR_D:    return HORARIO;
-        case NADA:        return ATAQUE_F;
+        case NADA:        return ANTI_HORARIO;
       } break;
     case ATAQUE_D:
       switch(s) {
@@ -144,19 +149,19 @@ enum girar_ate maquina_girar_ate(enum girar_ate e,
 void acao_girar_ate(enum girar_ate estado) {
   switch(estado) {
     case HORARIO: {
-      mover(700,-700); Serial.println("Girando horario");
+      mover(60,-60); Serial.println("Girando horario");
     } break;
     case ANTI_HORARIO: {
-      mover(-700,700); Serial.println("Girando anti-horario");
+      mover(-60,60); Serial.println("Girando anti-horario");
     } break;
     case ATAQUE_F: {
-      mover(1023,1023); Serial.println("Atacando frente");
+      mover(70,70); Serial.println("Atacando frente");
     } break;
     case ATAQUE_D: {
-      mover(1023,1010); Serial.println("Atacando direita");
+      mover(70,60); Serial.println("Atacando direita");
     } break;
     case ATAQUE_E: {
-      mover(1010,1023); Serial.println("Atacando esquerda");
+      mover(60,70); Serial.println("Atacando esquerda");
     } break;
   }
 }

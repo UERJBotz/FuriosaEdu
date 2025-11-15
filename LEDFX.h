@@ -25,7 +25,7 @@ void mostra_sensores_no_led(struct leitura leitura) {
   if (leitura.frente_dir) pixels.setPixelColor(3, azul);
   if (leitura.dir)        pixels.setPixelColor(2, azul);
 
-  pixels.show();
+  //pixels.show();
 }
 
 #endif //ledFX_H
