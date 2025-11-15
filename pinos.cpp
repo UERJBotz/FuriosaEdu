@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-#define roda_esq_m1 19
-#define roda_esq_m2 18
+#define roda_esq_m1 18
+#define roda_esq_m2 19
 #define roda_dir_m1 23
 #define roda_dir_m2 4
 #include "motores.h"
