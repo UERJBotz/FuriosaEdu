@@ -1,9 +1,10 @@
+#include "placa.h"
 #include "edu.h"
 #include "LEDFX.h"
 #include <SumoIR.h>
 
-#define pino_ir 15
-#define led     2
+#define pino_ir IR_PIN
+#define led     LED_STRIP
 
 #ifdef BLUETOOTH
 #include <BluetoothSerial.h>

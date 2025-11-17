@@ -1,15 +1,16 @@
 #include <Arduino.h>
+#include "placa.h"
 
-#define roda_esq_m1 18
-#define roda_esq_m2 19
-#define roda_dir_m1 23
-#define roda_dir_m2 4
+#define roda_esq_m1 MA1
+#define roda_esq_m2 MA2
+#define roda_dir_m1 MB2
+#define roda_dir_m2 MB1
 #include "motores.h"
 
-#define sensor_esq 33
-#define sensor_dir 32
-#define sensor_frente_esq  27
-#define sensor_frente_dir  26
+#define sensor_esq S5
+#define sensor_dir S4
+#define sensor_frente_esq S7
+#define sensor_frente_dir D26
 #include "sensores.h"
 
 void init_edu(unsigned int baud = 9600) {

@@ -1,13 +1,12 @@
 #ifndef ledFX_H
 #define ledFX_H
 
+#include "placa.h"
 #include "edu.h"
 #include <Adafruit_NeoPixel.h>
 
-#define PIN 2 //pino do anel de leds
 #define NUMPIXELS 8 // quantidade de leds do anel
-Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800); // necessario
-
+Adafruit_NeoPixel pixels(NUMPIXELS, LED_STRIP, NEO_GRB + NEO_KHZ800); // necessario
 
 void setar_cor_leds(uint8_t r, uint8_t g, uint8_t b) {
   for (uint8_t i = 0; i < NUMPIXELS; i++) {
