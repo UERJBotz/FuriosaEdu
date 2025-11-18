@@ -35,6 +35,7 @@ enum simbolo {
 
 enum estrategia {
   GIRAR_ATE = 4,
+  TESTE_MOTORES = 8,
   MAD_MAX = 9,
 } estrategia = GIRAR_ATE;
 
@@ -86,6 +87,19 @@ void loop() {
         pixels.setPixelColor(7, 150, 0, 0);
         pixels.show();
         mover(1023, 1023);
+      } break;
+
+      case TESTE_MOTORES: {
+        pixels.setPixelColor(7, 0, 150, 150);
+        pixels.show();
+        mover(60, 60);
+        delay(1500);
+        mover(-60, -60);
+        delay(1500);
+        mover(60, -60);
+        delay(1500);
+        mover(-60, 60);
+        delay(1500);
       } break;
     }
   } else if (IR.stop()) {
